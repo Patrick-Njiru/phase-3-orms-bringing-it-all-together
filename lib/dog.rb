@@ -24,23 +24,12 @@ class Dog
     end
 
     def save
+    
+        DB[:conn].execute("INSERT INTO dogs (name, breed) VALUES (?, ?)", self.name, self.breed)
 
-        # if self.id.is_a?(String)
-        #     DB[:conn].execute("UPDATE dogs SET name = ?, breed = ? WHERE id = #{self.id}", self.name, self.breed, self.id)
+        self.id = DB[:conn].execute("SELECT last_insert_rowid() FROM dogs")[0][0]
 
-        #     return self
-        # else
-            sql = <<-SQL
-                INSERT INTO dogs (name, breed)
-                VALUES (?, ?)
-            SQL
-    
-            DB[:conn].execute(sql, self.name, self.breed)
-    
-            self.id = DB[:conn].execute("SELECT last_insert_rowid() FROM dogs")[0][0]
-    
-            self
-        # end
+        self
     end
 
     def self.create(name:, breed:)
@@ -79,9 +68,8 @@ class Dog
     def update
         if self.id.is_a?(Integer)
             DB[:conn].execute("UPDATE dogs SET name = ?, breed = ? WHERE id = ?", self.name, self.breed, self.id)
-
             return self
-        else save
         end
+        save
     end
 end
